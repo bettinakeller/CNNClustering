@@ -1,100 +1,69 @@
-Documentation:
-**********************
-**********************
-General:
-**********************
+Important: The program is automated and uses default names which can but do not have to be adjusted.
 
-All programs are called with python $(Program).py (e.g. python 01_Cluster-dataset.py). The input is provided using flags (see below). The scripts are written in python 3.6.1. Alternatively, a bash-script can be used to execute the python scripts (Examples included).
+Documentation.txt contains description of all programs included in Algorithms/Software/
 
-**********************
-00_Hist_distmatrix.py
-**********************
+Additionally, four optional scripts are included to calculate the Inputs. Therefore, only the 2-3 Input Parameter in the Files have to be modified, which are in the beginning of the respective scripts. (Section „Input“)
 
-00_Hist_distmatrix.py is a software to display the distribution of the distances in a histogram plot. This software is an optional tool and can be useful to determine parameters for the cluster algorithms.
+Most of the bash scripts are generated during the clustering run, with the correct variables. However, for the start of the run the existing bash-files have to be modified. (Section “Important Scripts“) IMPORTANT: Bash-Script does not support space after variable assignment (e.g i=1 is ok; i= 1 or i = 1 is not ok).
 
-For the use of the program a distance matrix (no condensed matrix) is necessary. This matrix has to contain the distances between all pairs of data points in an (D,D)-array where D is the number of data points. This matrix can be provided by the -In option.
+The general clustering procedure looks like 01_Cluster.sh for the CNN-Clustering, 02_Isolate.sh to extract the frames and if 2D data sets are used 03_Evaluate_2D.sh to visualize the clusters. If a reduced data set was applied for the clustering a mapping of the complete data set onto the clusters can be achieved using 04_Merge_all.sh.
 
-Input:
+If the clustering is not sufficient you can refine clusters using 04_Distmat.sh. This script isolates the distance matrix of a single cluster which can then be used for a new clustering step. After the clustering step 02_Translate_hierarchical.sh has to be used to obtain the correct indices for the new clusters (Further information in Documentation.txt). 
+Important: For the merging step the parameters that were used to extract the cluster should be applied. Therefore, for each clustering step a single merging step should be performed with updated parameters. To avoid doublings the refined clusters have to be removed manually from the original frame file(s). In the end the resulting trajectories for all merging steps have to be combined. Keep in mind that for each merging step the micro state index starts at 1. Therefore, the maximal micro state index of the current trajectory has to be added to the new added trajectory. Example:
 
--In	--Input			str	Distance matrix (default = dist.npy)
+Trajectory_step1: 4 micro states: 1 2 3 4	(new numbering 1 2 3 4)
+Trajectory_step2: 3 micro states: 1 2 3		(new numbering 5 6 7)
+Trajectory_step3: 3 micro states: 1 2 3		(new numbering 8 9 10)
+…
 
-**********************
-01_Cluster_dataset_large.py
-**********************
-
-01_Cluster_dataset_large is a tool to cluster data points by a partitioning density based cluster algorithm. In the software the Common Nearest Neighbor cluster algorithm is implemented:
-
-Common-Nearest-Neighbor-Algorithm (CNN):
-The CNN-Algorithm (B. Keller et al. JCP, 132 (2010), p. 074110) clusters all data points which have at least N nearest neighbors within a cutoff radius R in common.
-
-For the use of the tool a complete distance matrix (no condensed matrix) is necessary. This matrix has to contain the distances between all pairs of data points in an (D,D)-array where D is the number of data points.
-
-At the end of the clustering process a short summary is shown in the terminal which includes the time for the clustering process (preprocessing and clustering) the number of clusters found as well as the number of points that are declared as noise. Additionally, 3 Output-files are written:
-
-	Summary-file:
-	.txt-file that contains information such as the parameters, the algorithm and the number of clusters found
-
-	Cluster-file:
-	.p-file that contains a list of all clusters
-
-	Clustersize-file:
-	.p-file that contains the size of all clusters
-
-Additionally, it is possible to extract the number of Clusters that have at least Min members. This can be done by using the -Nl option.
-
-New features: The bash-files for further scripts are provided as an output with all parameters included (if accessible).
+=====================================
 
 Input:
 
--Cut	--Cutoff		float	Cutoff criterion (R)
--Sim	--Similarity		int	Criterion of similarity (N)
--In	--Input			str	Distance matrix (default = dist.npy)
+The input files can be generated using the provided scripts:
 
-Optional Input:
+Input 1: Distance matrix nxn (Optimal 10.000 - 20.000 data points) (Calculate_dist.py)
+Input 2:
+    Option 1) Distance matrix nxmx2 (Calculate_MapMatrix.py, Use 04_Merge_not_reduced.py later)
+    Option 2) RECOMMENDED: Distance matrix nxkx2 (Preordered to k nearest neighbors ==> Sim should be smaller than 0.1*k during Clustering!) (Calculate_MapMatrix_red.py, Use 04_Merge.py later)
 
--Nl	--Clustersize		int	Minimal Clustersize (Min) (default = 2)
--Screen	—-Screen		str	Clustering Scan (YES or NO) (default=NO)
--Ntr	—-NumberTra		int 	Number of Number of trajectories (replica) (default=1)
+=====================================
 
-Output:
+Other importants Scripts:
 
--Out	--Output		str	Summary-File (default = Summary.txt)
--Clf	--Clusterfile		str	Clusterfile (.p-file) (default = Cluster.p)
--Csf	--Clustersizefile	str	Clustersizefile (.p-file) (default = Clustersize.p)
+00_Hist.sh --> Histogram of the data set (IMPORTANT: Adjust Path!!!)
+01_Cluster.sh --> Clustering of the data set (IMPORTANT: Adjust Path!!!)
+01_Cluster_screen_example.sh --> Screen of the data set for different parameter sets (IMPORTANT: Adjust Path!!!)
 
-**********************
-02_Isolate_cluster.py
-**********************
+Decomposition.py --> Compare the Outcome of two different clusterings (Example in test/)
 
-02_isolate_cluster.py is a tool to read the generated clusterfile and extract the top M clusters in an index-file.
+=====================================
 
-The tool needs at least one input-file: the cluster-file that is obtained by 01_Cluster_dataset.py 01_Cluster_dataset_large.py. Optionally the clustersizefile can be provided too, but is not necessary. If no clustersizefile is provided the clustersize will be calculated during the isolation step.
+Example data:
 
-As a default the tool isolates the 5 largest clusters in the dataset. This number can be varied by using the -Nci option. Additionally it is possible to extract a single cluster using the -Nco option.
+Example data including the outcome (Figures, Clustering Results, ...(for: R=6, N=4, M=20 ,n=1000 (Full set n=10000))) can be found in the directory test/. In this directory a 2D data set is given (Coord.p, 10000 data points) describing a trajectory in a 3-well-2D-potential (O. Lemke, B.G. Keller, Algorithms (Special issue: Clustering Algorithms 2017) 2017, submitted). A script plot_cores.py for plotting the resulting core sets (after the mapping step) is included. Suitable parameter sets for a 1-step clustering using 1000 data points (every 10th data point) are (R=6,N=4) and for a hierarchical clustering {(R=9,N=4),(R=6,N=4)}. Additionally, an example figure for the comparison of two clustering steps is included for a more complex system (Decomposition_Example.png).
 
-The extracted cluster(s) can be found in an Index-file which is written as an output.
+=====================================
 
-Additionally, it is possible to obtain the distribution of the distances for each cluster using the -Plo YES option. Therefor a distancematrix has to be provided using the -Ind option. The histograms are saved in figures and named after the following scheme:
-	$(filename)_$(clusternumber).png
-The number of isolated Clusters is equal to the number of histogram plots
+General Procedure (1-step Clustering):
 
-Input:
+0.) Calculation of the Distance Matrix for the Reduced data set and the Map Matrix
+1.) Histogramm to evaluate cut off R (left of the first maximum) (00_Hist.sh)
+2.) Clustering (Single or Screen) (01_Cluster.sh/01_Cluster_screen.sh)
+ --> Automated Generation of 02_Isolate.sh (Isolation of the clusters), 02_Translate.sh (Translating the frames after a hierarchical clustering step), 03_Evaluate_2D.sh (Visualization of 2D clustering results), 04_Merge_all.sh (Mapping the original data onto the cluster) and 04_Distmat.sh (Isolation of the distance matrix of a single cluster) using the used parameters
+3.) Isolation of the clusters (02_Isolate.sh) and optional visualiztion of the clusters (03_Evaluate_2D.sh)
+4.) Mapping of the trajectory onto the clusters (04_Merge_all.sh)
 
--Inc	--Inputcluster		str	Clusterfile (.p-file) (default = Cluster.p)
--Nci	--Number		int	Maximal number of isolated clusters (default = 5)
+General Procedure (Multi-step Clustering):
 
-Optional Input:
-
--Ins	--Inputclustersize	str	Clustersizefile (p.file) (default = Clustersize.p) (optional)
--Nco	--Numberopt		int	Cluster that should be isolated (optional)
--Ind	--Inputdistmat		str	Distancematrix (optional) (default = dist.npy)
--Plot	--Plot			str	Plot of the histograms for each cluster (YES or NO) (default=NO)
-
-Output:
-
--Out	--Output		str	Frames of the top N clusters (.ndx- or .txt-file) (default = frames.ndx)
-
-Optional Output:
-
--Opt	--Outopt		str	Frames of one Cluster (.ndx- or .txt.file) (default=framescl.ndx)
--Fig	--Figure		str	Histogram-plot (only file-name) (default=Hist)
+0.) Calculation of the Distance Matrix for the Reduced data set and the Map Matrix
+1.) Histogramm to evaluate cut off R (left of the first maximum) (00_Hist.sh)
+2.) Clustering (Single or Screen) (01_Cluster.sh/01_Cluster_screen.sh)
+ --> Automated Generation of 02_Isolate.sh (Isolation of the clusters), 02_Translate.sh (Translating the frames after a hierarchical clustering step), 03_Evaluate_2D.sh (Visualization of 2D clustering results), 04_Merge_all.sh (Mapping the original data onto the cluster) and 04_Distmat.sh (Isolation of the distance matrix of a single cluster) using the used parameters
+3.) Isolation of the clusters (02_Isolate.sh) and optional visualiztion of the clusters (03_Evaluate_2D.sh)
+4.) Extraction of the distance matrices for the clusters that have to be refined (04_Distmat.sh)
+5.) Clustering using the new distance matrix (01_Cluster.sh) and isolation of the clusters (02_Isolate.sh)
+6.) Correction of the indices of the new clusters (02_Translate.sh) and the removal of the refined cluster from the frame-file of the former step (Manually)
+7.) Repeat of steps 4.)-6.) until clustering is sufficient
+8.) Mapping of the trajectory onto the clusters (04_Merge_all.sh) for every clustering step
+9.) Combining the projected trajectories (as described above)

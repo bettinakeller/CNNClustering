@@ -1,0 +1,25 @@
+Summary:
+
+**********************
+
+Settings:
+
+Algorithm used: CNN
+Special criterium: Yes
+Number of datapoints 1000
+Parameters: rc = 6.00, nnnc = 4
+
+**********************
+
+Results:
+
+Time for the loading of the distance matrix: 0.15 s
+Time for the clustering process: 0.08 s
+Total time: 0.23 s
+17 Cluster(s) found
+3 Cluster(s) found that have at least 20 Members
+largest cluster found: 369 (Percentage: 0.37)
+Number of datapoints declared as noise: 98 (Percentage: 0.10)
+
+**********************
+

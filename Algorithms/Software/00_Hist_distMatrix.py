@@ -47,7 +47,7 @@ xmax=np.max(x)
 ymax=np.max(hist)
 
 plt.axis([0, xmax, 0, ymax*1.1])
-plt.xlabel('Distance \ [AU]')
+plt.xlabel('Distance / [AU]')
 plt.ylabel('Amount of appearance')
 plt.tight_layout()
 fig.savefig('Hist.png')

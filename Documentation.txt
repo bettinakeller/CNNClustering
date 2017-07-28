@@ -1,0 +1,216 @@
+Documentation:
+**********************
+**********************
+General:
+**********************
+
+All programs are called with python $(Program).py (e.g. python 01_Cluster-dataset.py). The input is provided using flags (see below). The scripts are written in python 3.6.1. Alternatively, a bash-script can be used to execute the python scripts (Examples included).
+
+**********************
+00_Hist_distmatrix.py
+**********************
+
+00_Hist_distmatrix.py is a software to display the distribution of the distances in a histogram plot. This software is an optional tool and can be useful to determine parameters for the cluster algorithms.
+
+For the use of the program a distance matrix (no condensed matrix) is necessary. This matrix has to contain the distances between all pairs of data points in an (n,n)-array where n is the number of data points. This matrix can be provided by the -In option.
+
+Input:
+
+-In	--Input			str	Distance matrix (default = dist.npy)
+
+**********************
+01_Cluster_dataset_large.py
+**********************
+
+01_Cluster_dataset_large is a tool to cluster data points by a partitioning density based cluster algorithm. In the software the Common Nearest Neighbor cluster algorithm is implemented:
+
+Common-Nearest-Neighbor-Algorithm (CNN):
+The CNN-Algorithm (B. Keller et al. JCP, 132 (2010), p. 074110) clusters all data points which have at least N nearest neighbors within a cutoff radius R in common.
+
+For the use of the tool a complete distance matrix (no condensed matrix) is necessary. This matrix has to contain the distances between all pairs of data points in an (n,n)-array where n is the number of data points.
+
+At the end of the clustering process a short summary is shown in the terminal which includes the time for the clustering process (preprocessing and clustering) the number of clusters found as well as the number of points that are declared as noise. Additionally, 3 Output-files are written:
+
+	Summary-file:
+	.txt-file that contains information such as the parameters, the algorithm and the number of clusters found
+
+	Cluster-file:
+	.p-file that contains a list of all clusters
+
+	Clustersize-file:
+	.p-file that contains the size of all clusters
+
+Additionally, it is possible to extract the number of Clusters that have at least M members. This can be done by using the -Nl option.
+
+New features: The bash-files for further scripts are provided as an output with all parameters included (if accessible).
+
+Input:
+
+-Cut	--Cutoff		float	Cutoff criterion (R)
+-Sim	--Similarity		int	Criterion of similarity (N)
+-In	--Input			str	Distance matrix (default = dist.npy)
+
+Optional Input:
+
+-Nl	--Clustersize		int	Minimal Clustersize (M) (default = 2)
+-Screen	—-Screen		str	Clustering Scan (YES or NO) (default=NO)
+-Ntr	—-NumberTra		int 	Number of Number of trajectories (replica) (default=1)
+
+Output:
+
+-Out	--Output		str	Summary-File (default = Summary.txt)
+-Clf	--Clusterfile		str	Clusterfile (.p-file) (default = Cluster.p)
+-Csf	--Clustersizefile	str	Clustersizefile (.p-file) (default = Clustersize.p)
+
+**********************
+02_Isolate_cluster.py
+**********************
+
+02_Isolate_cluster.py is a tool to read the generated clusterfile and extract the top N clusters in an index-file.
+
+The tool needs at least one input-file: the cluster-file that is obtained by 01_Cluster_dataset_large.py. Optionally the clustersizefile can be provided too, but is not necessary. If no clustersizefile is provided the clustersize will be calculated during the isolation step.
+
+As a default the tool isolates the 5 largest clusters in the dataset. This number can be varied by using the -Nci option. Additionally it is possible to extract a single cluster using the -Nco option.
+
+The extracted cluster(s) can be found in an Index-file which is written as an output.
+
+Additionally, it is possible to obtain the distribution of the distances for each cluster using the -Plo YES option. Therefor a distancematrix has to be provided using the -Ind option. The histograms are saved in figures and named after the following scheme:
+	$(filename)_$(clusternumber).png
+The number of isolated Clusters is equal to the number of histogram plots
+
+Input:
+
+-Inc	--Inputcluster		str	Clusterfile (.p-file) (default = Cluster.p)
+-Nci	--Number		int	Maximal number of isolated clusters (default = 5)
+
+Optional Input:
+
+-Ins	--Inputclustersize	str	Clustersizefile (p.file) (default = Clustersize.p) (optional)
+-Nco	--Numberopt		int	Cluster that should be isolated (optional)
+-Ind	--Inputdistmat		str	Distancematrix (optional) (default = dist.npy)
+-Plot	--Plot			str	Plot of the histograms for each cluster (YES or NO) (default=NO)
+
+Output:
+
+-Out	--Output		str	Frames of the top N clusters (.ndx- or .txt-file) (default = frames.ndx)
+
+Optional Output:
+
+-Opt	--Outopt		str	Frames of one Cluster (.ndx- or .txt.file) (default=framescl.ndx)
+-Fig	--Figure		str	Histogram-plot (only file-name) (default=Hist)
+
+**********************
+02_Translate_Hierarchical.py
+**********************
+
+02_Translate_Hierarchical.py is a tool to correct the extracted frames after a hierarchical clustering step. Important: This script need only to be called if 04_Distmat.sh was applied in a former step.
+
+The tool needs two input-file: the extracted frames of the clustering step as well as the extracted frames of the former clustering step (reference). The reference cluster (cluster that was refined) is provided over the -Fra option. The index of the first cluster is 0.
+
+The extracted cluster(s) can be found in an Index-file which is written as an output.
+
+Input:
+
+-Fra	--Inputframe		int	Input: Clusternumber to be translated (default=0)
+-Inf	--Inputframelist	str	Input: Frames of the top N clusters (default=frames_0.ndx)
+-Inr	--Inputreferencelist	str	Input: Frames of the former clustering step (default=frames.ndx)
+
+Output:
+
+-Out	--Output		str	Output: Translated frames of the top N clusters (.ndx- or .txt-file) (default=frames_0n.ndx)
+
+**********************
+03_Evaluate_cluster_2D.py
+**********************
+
+If a 2D dataset was analyzed using the cluster algorithms 03_Evaluate_cluster_2D.py provides a tool for the evaluation of the obtained clusters. This tool reads the Index-file and visualizes the top N cluster in a scatter-plot.
+
+To do this the tool needs two input files: the index-file which is obtained by 02_Isolate_cluster.py and a reference file which contains the x and y data pairs for all frames of the analyzed trajectory. The reference-file must be in a .npy format and has to contain an array which has a (n,2) shape:
+
+	[[x1,y1],[x2,y2],...,[xn,yn]]
+
+As an output-file a scatter-plot is provided. To specify the filename the -Fig option can be used It has to be mentioned that only the name and not the type is specified (e.g. -Fig Scatter (-Fig Scatter.png is incorrect)). Additionally, it is possible to extract the datapoint pairs for each cluster using the -Scn YES option. The responding data pairs are saved in a .txt-file. The name and the path of the file can be provided using the -Sca option. As for the -Fig option also only the name has to be specified not the type. A separate .txt-file is generated for each cluster using the following name scheme:
+	$(Filename)_$(Clusternumber).txt
+
+The limits of the scatter plot can be fixed (if necessary) using the -xmin -xmax -ymin and/or -ymax option
+
+Optional Input:
+
+-Inf	--Inputframes		str	Framefile (.ndx- or .txt-file) (default = frames.ndx)
+-Ref	--Referencedata		str	Coordinate file of all datapoints (.npy-file) (default = Ref.npy)	
+-Cln	--Clusternumber		int	maximal number of clusters that should be analyzed (maximal 20 clusters) (default = 5)
+
+Optional Input:
+
+-xmin	--Minimalx		str	Minimal x-value that should be shown (optional)
+-xmax	--Maximalx		str	Maximal x-value that should be shown (optional)
+-ymin	--Minimaly		str	Minimal y-value that should be shown (optional)
+-ymax	--Maximaly		str	Maximal y-value that should be shown (optional)
+-Scn	--Scatter		str	Save scatterdata in an .txt-file (YES or NO) (default = NO)
+
+Output:
+
+-Fig	--Figure		str	Scatter-plot (only file-name) (default = Scatter)
+
+Optional Output:
+
+-Sca	--Scatterdata		str	Scatter-plot-data (only file-name) (default=Scatterdat)
+
+**********************
+04_Isolate_distmat.py
+**********************
+
+04_isolate_distmat.py is a tool to read the generated clusterfile and extract the distance matrices for the top N clusters in separated .npy-file.
+
+The tool needs at least two input-file: the cluster-file that is obtained by 01_Cluster_dataset_large.py and the distance matrix that was used for the clustering. Optionally, the clustersizefile can be provided as well but it is not necessary. If no clustersizefile is provided the clustersize will be calculated during the isolation step.
+
+As a default the tool isolates the 5 largest clusters in the dataset. This number can be varied by using the -Nci option.
+
+The distance matrices of the cluster(s) can be obtained in either an matrix form or a vector form (condensed). The distance matrices are saved in a .npy-file. the name of the file is generated using the following expression:
+	${Filename}_${Clusternumber}.npy
+
+
+Optional Input:
+
+-Inc	--Inputcluster		str	Clusterfile (.p-file) (default = Cluster.p)
+-Ins	--Inputclustersize	str	Clustersizefile (p.file) (default = Clustersize.p) (optional)
+-Nci	--Number		int	Maximal number of isolated clusters (default = 5)
+-Ind	--Inputdistmat		str	Distancematrix (default = dist.npy)
+-For    --Format		str	Format of the distance-file (Mat (Matrix), Vec (Vector)) (default=Mat)
+
+Optional Input:
+
+-Opt	--Outputtype		str	Output type (Mat (Matrix), Vec (Vector)) (default = Mat)
+
+Output:
+
+-Out	--Output		str	Distance matrices of the top N clusters (only filename) (default = dist)
+
+**********************
+04_Merge.py
+**********************
+
+04_Merge.py is a tool to map the complete trajectory onto the clusters, which are created on a reduced dataset.
+
+The tool needs at least two input-file: The frames of the single clusters that are obtained by 02_Isolate.sh or 02_Translate_hierachical.sh respectively as well as a Distance Matrix which contains the distances of all m frames against all n frames of the reduced trajectory (mxn matrix). Important: On default a reduced Map matrix is read in (due to memory issues) containing the indices (starting at 1, sorted according to the distances, starting at the nearest neighbor) and the distances to the k<<n nearest neighbors (sorted according to the distances, starting at the nearest neighbor) for every data point of the reduced trajectory (mxkx2 tensor). If this is not necessary you can switch to 04_Merge_not_reduced.py.
+
+The parameter for the mapping have to be defined. In general the same parameters as for the clustering step can be used.
+
+As a default the tool isolates the 100 largest core sets (maximum) of the dataset. This number can be varied by using the -Nc option.
+
+As an output a projected trajectory is obtained, which assigned each frame to either a core set (numbered starting at 1) or to the set of outliers (Noise) (0). This file can be analyzed using 05_MSM.sh.
+
+Input:
+
+-Fra	--InputFramefile 	str 	Input: Framefile (.ndx-file) (default=frames.ndx)
+-Map 	--InputMapMatrix 	str 	Input: Map-matrix (default=Map_dist.npy
+-Cut 	--Cutoff 		float 	Cutoff criterion (rc for CNN, nnn for JP and eps for DBSCAN)
+-Sim 	--Similarity 		int 	Criterion of similarity (nnnc for CNN and JP and MinPts for DBSCAN)
+
+Optional Input:
+
+-Nc	--Numberclusters 	int 	Input: Number of Clusters (N biggest clusters) (default=100)
+
+Output:
+
+-Out 	--Output 		str 	Output: Projected Trajectory (.npy-file) (default=Trace.npy)

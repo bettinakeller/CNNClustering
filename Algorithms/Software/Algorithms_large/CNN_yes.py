@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Mar 9 2015
+
+@author: Oliver Lemke
+"""
+
 # Stop loading time I
 
 startl=time.clock()

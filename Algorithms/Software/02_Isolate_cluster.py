@@ -126,7 +126,7 @@ while j<Nmax:
         fig,ax=plt.subplots()
         rf=ax.bar(hbin[0:bi], hist, width)
         plt.axis([0, xmax, 0, ymax*1.1])
-        plt.xlabel('Distance \ [AU]')
+        plt.xlabel('Distance / [AU]')
         plt.ylabel('Amount of appearance')
         plt.tight_layout()
         plt.savefig(Plonr)
