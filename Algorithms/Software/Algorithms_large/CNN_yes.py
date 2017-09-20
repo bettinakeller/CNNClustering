@@ -2,7 +2,7 @@
 
 startl=time.clock()
 
-print 'Loading distance matrix'
+print ('Loading distance matrix')
 
 # Import Python RMSD Matrix including Error report
 
@@ -46,7 +46,7 @@ start=time.clock()
 
 # Clustering
 
-print 'Clustering process started'
+print ('Clustering process started')
 
 while w<1:    
     
@@ -90,7 +90,7 @@ while w<1:
             
             # Extract Neighborlist of a within rc
 
-	    Na=distn[a]             
+            Na=distn[a]
             
             # Compare Neighborlists of a and all reachable datapoints              
             
@@ -100,10 +100,10 @@ while w<1:
                 
                 if Numbi[b]>0:
 
-		    Nb=distn[b]
+                    Nb=distn[b]
                     
                     tcc=np.asarray(ismember(Na,Nb))
-		    tc=len(tcc[tcc>=0])
+                    tc=len(tcc[tcc>=0])
                     
                     # Check if b in the Nearest Neighbors of a                    
                     
