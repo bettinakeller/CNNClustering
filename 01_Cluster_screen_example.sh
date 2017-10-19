@@ -3,7 +3,7 @@
 # Input
 
 Path=.
-Software=/INSERT_PATH/Algorithms/Software   ##### Important !!!!
+Software=/INSERT_FULL_PATH/Algorithms/Software   ##### Important !!!!
 Input=${Path}/../../../
 Output=${Path}
 
@@ -35,8 +35,6 @@ do
 		mkdir Sim_${Sim}
 		cd Sim_${Sim}
 		python ${Software}/01_Cluster_dataset_large.py \
-		-Algo ${Algo} \
-		-Var ${Var} \
 		-Cut ${Cut} \
 		-Sim ${Sim} \
 		-In ${Input}/${Dist} \
