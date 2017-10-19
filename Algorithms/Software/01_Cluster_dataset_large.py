@@ -247,7 +247,10 @@ output.write('\n')
 output.write('Path=. \n')
 output.write('Software=%s \n' %Software)
 output.write('Input=${Path} \n')
-output.write('Input2=${Path} \n')
+if Auto == "YES":
+    output.write('Input2=${Path}/../../.. \n')
+if Auto == "NO":
+    output.write('Input2=${Path} \n')
 output.write('Output=${Path} \n')
 output.write('\n')
 output.write('Inc=%s \n' %Clf)
