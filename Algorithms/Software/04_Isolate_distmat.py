@@ -101,7 +101,7 @@ j=0
 distmat=str(args.Output)
 
 while j<Nmax:
-    C=np.sort(Clust[Csr[1,j]])-1    
+    C=np.sort(Clust[Csr[1,j]])    
     A=dist[C[:],:]
     B=A[:,C[:]] 
     distmata=distmat+str('_')+str(j)
